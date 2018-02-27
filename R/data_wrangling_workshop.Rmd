@@ -1,0 +1,30 @@
+---
+title: "Data Wrangling in R - Learning Analytics Hackathon Workshop"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# install.packages("tidyverse")
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+# canvas_data <- read_csv("path")
+```
+
+A first look at our data.
+
+```{r}
+head(canvas_data)
+
+summary(canvas_data)
+```
+
+Let's answer a question!
