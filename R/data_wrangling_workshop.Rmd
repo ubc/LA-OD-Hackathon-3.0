@@ -15,16 +15,101 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-```{r}
-# canvas_data <- read_csv("path")
+```{r, message=FALSE}
+df <- read_csv("all_enrolments.csv") %>% 
+  mutate(highest_education = factor(highest_education, 
+                                    levels = c("No Formal quals",
+                                               "Lower Than A Level",
+                                               "A Level or Equivalent",
+                                               "HE Qualification",
+                                               "Post Graduate Qualification")))
+
 ```
 
 A first look at our data.
 
 ```{r}
-head(canvas_data)
-
-summary(canvas_data)
+df
 ```
 
 Let's answer a question!
+
+Is a registrant's likelihood of completing a course related to the socioeconomic status of the place where they live?
+
+## `mutate()`
+
+Our first task is to create a column that tells us whether a registrant completed a course.
+
+```{r}
+df_mutated <- df %>% 
+  mutate(completed = case_when(
+           final_result == "Pass" ~ TRUE,
+           final_result == "Distinction" ~ TRUE,
+           TRUE ~ FALSE
+         ))
+
+df_mutated %>% 
+  head()
+```
+
+## `group_by()` & `summarise()`
+
+Now we need to count how many people completed their courses across different `imd_band`s.
+
+```{r}
+df_grouped <- df_mutated %>% 
+  group_by(imd_band) %>%
+  summarise(percent_completed = mean(completed),
+            registrants = n())
+
+df_grouped
+```
+
+## `filter()`
+
+```{r}
+df_filtered <- df_grouped %>% 
+  filter(!is.na(imd_band))
+
+df_filtered
+```
+
+## `ggplot()`
+
+```{r}
+df_filtered %>% 
+  ggplot() +
+  geom_bar(
+    aes(
+      x = imd_band,
+      y = percent_completed
+    ),
+    alpha = 0.8,
+    stat = "identity"
+  )
+```
+
+## Putting it all together
+
+```{r}
+df %>% 
+  mutate(completed = case_when(
+           final_result == "Pass" ~ TRUE,
+           final_result == "Distinction" ~ TRUE,
+           TRUE ~ FALSE
+         )) %>% 
+  group_by(imd_band) %>%
+  summarise(percent_completed = mean(completed),
+            registrants = n()) %>% 
+  filter(!is.na(imd_band)) %>% 
+  ggplot() +
+  geom_bar(
+    aes(
+      x = imd_band,
+      y = percent_completed
+    ),
+    alpha = 0.8,
+    stat = "identity"
+  )
+  
+```
