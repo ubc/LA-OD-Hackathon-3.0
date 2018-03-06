@@ -25,12 +25,14 @@ library(tidyverse)
 
 ``` r
 df <- read_csv("all_enrolments.csv") %>% 
-  mutate(highest_education = factor(highest_education, 
+  mutate(id_student = as.character(id_student),
+         highest_education = factor(highest_education, 
                                     levels = c("No Formal quals",
                                                "Lower Than A Level",
                                                "A Level or Equivalent",
                                                "HE Qualification",
-                                               "Post Graduate Qualification")))
+                                               "Post Graduate Qualification")),
+         final_exam_score = as.numeric(final_exam_score))
 ```
 
 A first look at our data.
@@ -41,7 +43,7 @@ df
 
     ## # A tibble: 32,593 x 20
     ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <int>             <dbl>
+    ##          <chr>             <chr>      <chr>             <dbl>
     ##  1         AAA             2013J      11391              -159
     ##  2         AAA             2013J      28400               -53
     ##  3         AAA             2013J      30268               -92
@@ -58,7 +60,7 @@ df
     ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <chr>
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>
 
 Let's answer a question!
 
@@ -102,7 +104,7 @@ df %>%
 
     ## # A tibble: 32,593 x 21
     ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <int>             <dbl>
+    ##          <chr>             <chr>      <chr>             <dbl>
     ##  1         AAA             2013J      11391              -159
     ##  2         AAA             2013J      28400               -53
     ##  3         AAA             2013J      30268               -92
@@ -119,7 +121,7 @@ df %>%
     ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <chr>, new_column <chr>
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>, new_column <chr>
 
 ``` r
 df %>% 
@@ -130,7 +132,7 @@ df %>%
 
     ## # A tibble: 32,593 x 21
     ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <int>             <dbl>
+    ##          <chr>             <chr>      <chr>             <dbl>
     ##  1         AAA             2013J      11391              -159
     ##  2         AAA             2013J      28400               -53
     ##  3         AAA             2013J      30268               -92
@@ -147,7 +149,7 @@ df %>%
     ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <chr>, new_column <dbl>
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>, new_column <dbl>
 
 ``` r
 # We can even use the other columns to determine the contents of the new one.
@@ -160,7 +162,7 @@ df %>%
 
     ## # A tibble: 32,593 x 21
     ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <int>             <dbl>
+    ##          <chr>             <chr>      <chr>             <dbl>
     ##  1         AAA             2013J      11391              -159
     ##  2         AAA             2013J      28400               -53
     ##  3         AAA             2013J      30268               -92
@@ -177,7 +179,7 @@ df %>%
     ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <chr>,
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>,
     ## #   activity_per_active_day <dbl>
 
 ### Practice time with `mutate()`!
@@ -193,7 +195,7 @@ df %>%
 
     ## # A tibble: 32,593 x 20
     ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <int>             <dbl>
+    ##          <chr>             <chr>      <chr>             <dbl>
     ##  1         AAA             2013J      11391              -159
     ##  2         AAA             2013J      28400               -53
     ##  3         AAA             2013J      30268               -92
@@ -210,7 +212,7 @@ df %>%
     ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <chr>
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>
 
 Now. What we actually need to do to answer our question is create a column that tells us whether the student passed their course. A good way to handle this is to use the `case_when()` function.
 
@@ -261,7 +263,7 @@ df_mutated %>%
 
     ## # A tibble: 32,593 x 3
     ##    id_student final_result completed_course
-    ##         <int>        <chr>            <lgl>
+    ##         <chr>        <chr>            <lgl>
     ##  1      11391         Pass             TRUE
     ##  2      28400         Pass             TRUE
     ##  3      30268    Withdrawn            FALSE
@@ -344,7 +346,7 @@ df %>%
 
     ## # A tibble: 32,593 x 20
     ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <int>             <dbl>
+    ##          <chr>             <chr>      <chr>             <dbl>
     ##  1         AAA             2013J      11391              -159
     ##  2         AAA             2013J      28400               -53
     ##  3         AAA             2013J      30268               -92
@@ -361,7 +363,7 @@ df %>%
     ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <chr>
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>
 
 To get at the missing values in our two columns of interest, you may be tempted to write conditions like `imd_band == NA` or `completed_course == NA`. However, in R, the best practice for checking whether a value is missing is to use the function `is.na()`. To return the negation of `is.na()` (or any negation, for that matter), you can use `!`. This turns `TRUE` into `FALSE` and `FALSE into`TRUE\`.
 
@@ -378,7 +380,7 @@ df_filtered
 
     ## # A tibble: 31,482 x 21
     ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <int>             <dbl>
+    ##          <chr>             <chr>      <chr>             <dbl>
     ##  1         AAA             2013J      11391              -159
     ##  2         AAA             2013J      28400               -53
     ##  3         AAA             2013J      30268               -92
@@ -395,7 +397,7 @@ df_filtered
     ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <chr>,
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>,
     ## #   completed_course <lgl>
 
 Computing summaries of subgroups with `group_by()` & `summarise()`
@@ -494,20 +496,47 @@ df_summarised
 Plotting with `ggplot()`
 ------------------------
 
+The `ggplot2` package is the best way to create visualizations in R. The code for each visualization comes in two main pieces:
+
+1.  Mapping of variables onto aesthetics (the visual properties of the graph)
+2.  Selection of a "geom" ("geometric object"), like a bar, a point, or a line, which will appear in the visualization as a representation of each observation.
+
 ``` r
-df_summarised %>% 
-  ggplot() +
-  geom_bar(
-    aes(
-      x = imd_band,
-      y = proportion_completed
-    ),
-    alpha = 0.8,
-    stat = "identity"
-  )
+example_dataframe %>% # First we pipe in the dataframe of interest.
+  ggplot(
+    mapping = aes( # Next we map our variables of interest onto aesthetics.
+      x = course,
+      y = grade
+    )
+  ) + 
+  geom_point() # Finally, we specify a geometric object to represent each observation.
 ```
 
 ![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-1.png)
+
+``` r
+df %>%
+  ggplot(
+    mapping = aes(
+      x = final_assessment_score
+    )
+  ) + 
+  geom_histogram()
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 6777 rows containing non-finite values (stat_bin).
+
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-15-2.png)
+
+``` r
+df_summarised %>% 
+  ggplot(mapping = aes(x = imd_band, y = proportion_completed)) +
+  geom_bar(stat = "identity")
+```
+
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-16-1.png)
 
 Putting it all together
 -----------------------
@@ -524,8 +553,54 @@ df %>%
          !is.na(completed_course)) %>% 
   group_by(imd_band) %>%
   summarise(proportion_completed = mean(completed_course)) %>% 
-  ggplot(aes(x = imd_band, y = proportion_completed)) +
-  geom_bar(alpha = 0.8, stat = "identity")
+  ggplot(mapping = aes(x = imd_band, y = proportion_completed)) +
+  geom_bar(stat = "identity")
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-16-1.png)
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-17-1.png)
+
+Bonus visualizations, to get you started!
+-----------------------------------------
+
+``` r
+library(reshape2)
+```
+
+    ## 
+    ## Attaching package: 'reshape2'
+
+    ## The following object is masked from 'package:tidyr':
+    ## 
+    ##     smiths
+
+``` r
+variables <- colnames(df)
+classes <- sapply(df, class)
+numeric_variables <- variables[classes == "numeric" | classes == "integer"]
+categorical_variables <- variables[
+  (classes == "character" | classes == "factor") 
+  & variables != "id_student"
+]
+
+df %>% 
+  melt(measure.vars = numeric_variables) %>% 
+  mutate(value = as.numeric(value)) %>% 
+  filter(!is.na(value)) %>% 
+  ggplot(aes(x = value)) +
+  stat_density() + 
+  facet_wrap(~variable, scales = "free", nrow = 4)
+```
+
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-18-1.png)
+
+``` r
+df %>% 
+  melt(measure.vars = categorical_variables) %>% 
+  ggplot(aes(x = value)) +
+  stat_count() + 
+  facet_wrap(~variable, scales = "free") +
+  coord_flip() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-18-2.png)

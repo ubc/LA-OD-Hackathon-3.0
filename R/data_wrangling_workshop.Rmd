@@ -17,12 +17,14 @@ library(tidyverse)
 
 ```{r, message=FALSE}
 df <- read_csv("all_enrolments.csv") %>% 
-  mutate(highest_education = factor(highest_education, 
+  mutate(id_student = as.character(id_student),
+         highest_education = factor(highest_education, 
                                     levels = c("No Formal quals",
                                                "Lower Than A Level",
                                                "A Level or Equivalent",
                                                "HE Qualification",
-                                               "Post Graduate Qualification")))
+                                               "Post Graduate Qualification")),
+         final_exam_score = as.numeric(final_exam_score))
 
 ```
 
@@ -246,17 +248,34 @@ df_summarised
 
 ## Plotting with `ggplot()`
 
+The `ggplot2` package is the best way to create visualizations in R. The code for each visualization comes in two main pieces:
+
+1. Mapping of variables onto aesthetics (the visual properties of the graph)
+2. Selection of a "geom" ("geometric object"), like a bar, a point, or a line, which will appear in the visualization as a representation of each observation.
+
+```{r}
+example_dataframe %>% # First we pipe in the dataframe of interest.
+  ggplot(
+    mapping = aes( # Next we map our variables of interest onto aesthetics.
+      x = course,
+      y = grade
+    )
+  ) + 
+  geom_point() # Finally, we specify a geometric object to represent each observation.
+
+df %>%
+  ggplot(
+    mapping = aes(
+      x = final_assessment_score
+    )
+  ) + 
+  geom_histogram()
+```
+
 ```{r}
 df_summarised %>% 
-  ggplot() +
-  geom_bar(
-    aes(
-      x = imd_band,
-      y = proportion_completed
-    ),
-    alpha = 0.8,
-    stat = "identity"
-  )
+  ggplot(mapping = aes(x = imd_band, y = proportion_completed)) +
+  geom_bar(stat = "identity")
 ```
 
 ## Putting it all together
@@ -273,6 +292,36 @@ df %>%
          !is.na(completed_course)) %>% 
   group_by(imd_band) %>%
   summarise(proportion_completed = mean(completed_course)) %>% 
-  ggplot(aes(x = imd_band, y = proportion_completed)) +
-  geom_bar(alpha = 0.8, stat = "identity")
+  ggplot(mapping = aes(x = imd_band, y = proportion_completed)) +
+  geom_bar(stat = "identity")
+```
+
+## Bonus visualizations, to get you started!
+
+```{r, warning=FALSE, fig.height=8, fig.width=9}
+library(reshape2)
+
+variables <- colnames(df)
+classes <- sapply(df, class)
+numeric_variables <- variables[classes == "numeric" | classes == "integer"]
+categorical_variables <- variables[
+  (classes == "character" | classes == "factor") 
+  & variables != "id_student"
+]
+
+df %>% 
+  melt(measure.vars = numeric_variables) %>% 
+  mutate(value = as.numeric(value)) %>% 
+  filter(!is.na(value)) %>% 
+  ggplot(aes(x = value)) +
+  stat_density() + 
+  facet_wrap(~variable, scales = "free", nrow = 4)
+
+df %>% 
+  melt(measure.vars = categorical_variables) %>% 
+  ggplot(aes(x = value)) +
+  stat_count() + 
+  facet_wrap(~variable, scales = "free") +
+  coord_flip() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
