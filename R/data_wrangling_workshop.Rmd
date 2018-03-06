@@ -117,6 +117,7 @@ case_when(
 All we need to do now is use `case_when()` within `mutate()` to create a new column that tells us whether the student in each row completed their course:
 
 ```{r}
+# Let's save the result in a new dataframe called `df_mutated`.
 df_mutated <- df %>% 
   mutate(
     completed_course = case_when(
@@ -127,7 +128,67 @@ df_mutated <- df %>%
     )
   )
 
-df_mutated
+# Let's take a look! (To keep just the variables we care about, we can use 
+# `select()`.)
+df_mutated %>% 
+  select(id_student, final_result, completed_course)
+```
+
+We're well on our way. But there is another monster to defeat: there are missing values in both `imd_band` and `completed_course`! What to do?
+
+## Subsetting rows with `filter()`
+
+![filter](img/filter.png)
+
+Technically, there are fancy statistical things you can do to deal with missing values. But today, we're just going to remove the rows where they occur in either of our two columns of interest.
+
+The easiest way to do this in R is to use the `filter()` function, which keeps only the rows in a dataframe that match a condition you pass in. For example:
+
+```{r}
+example_dataframe <- data.frame(
+  course  = c("Physics", "Physics", "English", "English", "Math",  "Math"),
+  student = c("Alice",   "Bob",     "Alice",   "Bob",     "Alice", "Bob"),
+  grade   = c(85,        74,        81,        89,        93,      87)
+)
+
+example_dataframe %>% 
+  filter(course == "English")
+
+example_dataframe %>% 
+  filter(course == "English" | course == "Physics")
+
+example_dataframe %>% 
+  filter(course == "English" | course == "Physics",
+         student == "Alice")
+
+example_dataframe %>% 
+  filter(course == "English" | course == "Physics",
+         student == "Alice",
+         grade > 83)
+```
+
+### Practice time with `filter()`!
+
+Challenge: keep only the subset of rows in our dataframe where the code module was `AAA` and the student was over age 55.
+
+```{r}
+df %>% 
+  filter(
+    #YOUR_ANSWER_HERE!
+  )
+```
+
+To get at the missing values in our two columns of interest, you may be tempted to write conditions like `imd_band == NA` or `completed_course == NA`. However, in R, the best practice for checking whether a value is missing is to use the function `is.na()`. To return the negation of `is.na()` (or any negation, for that matter), you can use `!`. This turns `TRUE` into `FALSE` and `FALSE into `TRUE`.
+
+In the code snippet below, I keep only the subset of rows where neither `imd_band` or `completed_course` is missing. 
+
+```{r}
+# Let's save the result in a new dataframe called `df_filtered`.
+df_filtered <- df_mutated %>% 
+  filter(!is.na(imd_band),
+         !is.na(completed_course))
+
+df_filtered
 ```
 
 ## Computing summaries of subgroups with `group_by()` & `summarise()`
@@ -138,15 +199,9 @@ Now we need to count how many people completed their courses across different va
 
 To do this, we can use two functions: `group_by()` and `summarise()`.
 
-`group_by()` specifies which variable(s) you want to use to compute summaries within, and `summarise()` squishes the dataframe down to just one row per group. Here's an example:
+`group_by()` specifies which variable(s) you want to use to compute summaries within, and `summarise()` squishes the dataframe down to just one row per group, and creates a column with whatever summary value you specify. Here's an example:
 
 ```{r}
-example_dataframe <- data.frame(
-  course  = c("Physics", "Physics", "English", "English", "Geography", "Geography"),
-  student = c("Alice",   "Bob",     "Alice",   "Bob",     "Alice",     "Bob"),
-  grade   = c(85,        74,        81,        89,        93,          87)
-)
-
 # We can group by course and compute the mean grade.
 example_dataframe %>% 
   group_by(course) %>% 
@@ -169,8 +224,6 @@ example_dataframe %>%
 
 Using our full open dataset, compute the mean number of days (`days_active`) students were active in each course (`code_module`).
 
-> Hint: there are missing values in `days_active`. To ignore them when using `mean()`, include the argument `na.rm = TRUE`. `na.rm` means "`NA`-remove". (`NA` means "not available" or "not applicable")
-
 ```{r}
 df %>% 
   group_by(
@@ -181,36 +234,25 @@ df %>%
   )
 ```
 
-To compute the proportion of students in each `imd_band` who completed their courses, we can use a neat trick. Remember: we created a column in which rows were labelled `TRUE` if the student completed the course, and `FALSE` if they didn't. In R, just like in most programming languages, `TRUE` is equivalent to `1`, and `FALSE` is equivalent to `0`. So we can group by `imd_band`, and summarise the mean of our column, `completed_course`. If a particular `imd_band` group has ten students, and four of them have a value of `TRUE` for `completed_course`, the mean will be `0.4`.
+To compute the proportion of students in each `imd_band` who completed their courses, we can use a neat trick. Remember: we created a column in which rows were labelled `TRUE` if the student completed the course, and `FALSE` if they didn't. In R, just like in most programming languages, `TRUE` is equivalent to `1`, and `FALSE` is equivalent to `0`. So we can group by `imd_band`, and summarise the mean of our new column, `completed_course`. If a particular `imd_band` group has ten students, and four of them have a value of `TRUE` for `completed_course`, the mean will be `0.4`. Our new column will tell us what proportion of students in that `imd_band` completed the course!
 
 ```{r}
-df_grouped <- df_mutated %>% 
+df_summarised <- df_filtered %>% 
   group_by(imd_band) %>%
-  summarise(percent_completed = mean(completed_course))
+  summarise(proportion_completed = mean(completed_course))
 
-df_grouped
-```
-
-## Subsetting rows with `filter()`
-
-![filter](img/filter.png)
-
-```{r}
-df_filtered <- df_grouped %>% 
-  filter(!is.na(imd_band))
-
-df_filtered
+df_summarised
 ```
 
 ## Plotting with `ggplot()`
 
 ```{r}
-df_filtered %>% 
+df_summarised %>% 
   ggplot() +
   geom_bar(
     aes(
       x = imd_band,
-      y = percent_completed
+      y = proportion_completed
     ),
     alpha = 0.8,
     stat = "identity"
@@ -227,9 +269,10 @@ df %>%
            final_result == "Fail" ~ FALSE,
            final_result == "Withdrawn" ~ FALSE
          )) %>% 
+  filter(!is.na(imd_band),
+         !is.na(completed_course)) %>% 
   group_by(imd_band) %>%
-  summarise(percent_completed = mean(completed_course)) %>% 
-  filter(!is.na(imd_band)) %>% 
-  ggplot(aes(x = imd_band, y = percent_completed)) +
+  summarise(proportion_completed = mean(completed_course)) %>% 
+  ggplot(aes(x = imd_band, y = proportion_completed)) +
   geom_bar(alpha = 0.8, stat = "identity")
 ```
