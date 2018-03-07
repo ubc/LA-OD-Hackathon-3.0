@@ -9,10 +9,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 #install.packages("tidyverse")
+#install.packages("reshape2")
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(reshape2)
 ```
 
 ```{r, message=FALSE}
@@ -43,11 +45,59 @@ There are two columns in our dataset that can help us answer this question:
 * `imd_band`: the Index of Multiple Depravation band of the place where the student lived during the module-presentation.
 * `final_result`: student’s final result in the module-presentation.
 
+Let's grab them!
+
+## Selecting columns with `select()`
+
+![select](img/select.png)
+
+`select()` takes a list of column names, and returns your dataframe but with only those columns. Let's create a small dataframe and see `select()` in action.
+
+```{r}
+example_dataframe <- data.frame(
+  course      = c("Physics", "Physics", "English", "English", "Math",  "Math"),
+  student     = c("Alice",   "Bob",     "Alice",   "Bob",     "Alice", "Bob"),
+  final_grade = c(85,        74,        81,        89,        93,      87),
+  exam_grade  = c(87,        71,        80,        90,        95,      83)
+)
+
+# Let's take a look.
+example_dataframe
+
+# Now let's select just the `course` column.
+example_dataframe %>% 
+  select(course)
+
+# Now let's select the `student` column and the `final_grade` column.
+example_dataframe %>% 
+  select(student, final_grade)
+```
+
+### Practice time with `select()`!
+
+Challenge: using our full dataframe, select just the `id_student` column.
+
+```{r}
+df %>% 
+  select(
+    #YOUR_ANSWER_HERE!
+  )
+```
+
+Awesome. Now let's grab our two variables of interest, plus the `id_student` column, and save it in a new dataframe. (This step isn't strictly necessary, but it will make it easier for us to keep an eye on the columns we care about.)
+
+```{r}
+df_selected <- df %>% 
+  select(id_student, imd_band, final_result)
+
+df_selected
+```
+
 ## Creating new columns with `mutate()`
 
 ![mutate](img/mutate.png)
 
-Our first task is to create a column that tells us whether a registrant completed a course.
+Our next task is to create a column that tells us whether a registrant completed a course.
 
 Unfortunately, we don't have a column that tells us this information directly. Instead, we have the `final_result` column, which has four values:
 
@@ -63,31 +113,28 @@ To do this, we need to write code that does two things:
 1. Creates a new column.
 2. Fills that column with values we care about.
 
-This is the jumpshot of data wrangling. In R, the easiest way to do it is to use the `mutate()` function, from the `dplyr` package (one of the packages you loaded as part of the `tidyverse`).
+This is one of the most common tasks in data wrangling. In R, the easiest way to do it is to use the `mutate()` function.
 
 ```{r}
 # We can fill our new column with whatever we like!
-df %>% 
-  mutate(
-    new_column = "hello!"
-  )
+example_dataframe %>% 
+  mutate(new_column = "hello!")
 
-df %>% 
-  mutate(
-    new_column = 1
-  )
+example_dataframe %>% 
+  mutate(new_column = 1)
+```
 
-# We can even use the other columns to determine the contents of the new one.
+We can even use the other columns to determine the contents of the new one! Let's compute the students' grades on the non-exam portion of the course, assuming the exam was worth 50% of the final grade.
+
+```{r}
 # (This is where the magic happens!)
-df %>% 
-  mutate(
-    activity_per_active_day = total_activity / days_active
-  )
+example_dataframe %>% 
+  mutate(non_exam_grade = (final_grade - 0.5*exam_grade) / 0.5)
 ```
 
 ### Practice time with `mutate()`!
 
-Challenge: using `mutate()` and the `date_registration` and `date_unregistration` columns, create a new column called `length_of_registration_period`.
+Challenge: using `mutate()` and the `total_activity` and `days_active` columns, create a new column in our real dataset called `average_events_per_active_day`. (`total_activity` tells you the total number of events that were logged for that student.)
 
 ```{r}
 df %>% 
@@ -120,7 +167,7 @@ All we need to do now is use `case_when()` within `mutate()` to create a new col
 
 ```{r}
 # Let's save the result in a new dataframe called `df_mutated`.
-df_mutated <- df %>% 
+df_mutated <- df_selected %>% 
   mutate(
     completed_course = case_when(
       final_result == "Pass" ~ TRUE,
@@ -130,10 +177,8 @@ df_mutated <- df %>%
     )
   )
 
-# Let's take a look! (To keep just the variables we care about, we can use 
-# `select()`.)
-df_mutated %>% 
-  select(id_student, final_result, completed_course)
+# Let's take a look!
+df_mutated
 ```
 
 We're well on our way. But there is another monster to defeat: there are missing values in both `imd_band` and `completed_course`! What to do?
@@ -147,31 +192,28 @@ Technically, there are fancy statistical things you can do to deal with missing 
 The easiest way to do this in R is to use the `filter()` function, which keeps only the rows in a dataframe that match a condition you pass in. For example:
 
 ```{r}
-example_dataframe <- data.frame(
-  course  = c("Physics", "Physics", "English", "English", "Math",  "Math"),
-  student = c("Alice",   "Bob",     "Alice",   "Bob",     "Alice", "Bob"),
-  grade   = c(85,        74,        81,        89,        93,      87)
-)
-
+# Use `==` for "equals"
 example_dataframe %>% 
   filter(course == "English")
 
+# Use `|` for "or".
 example_dataframe %>% 
   filter(course == "English" | course == "Physics")
 
+# In `filter()`, each comma-separation is treated as "and". But you could also use `&`.
 example_dataframe %>% 
   filter(course == "English" | course == "Physics",
          student == "Alice")
 
+# Use `!` for negation. This turns `TRUE` into `FALSE` and `FALSE into `TRUE`.
 example_dataframe %>% 
-  filter(course == "English" | course == "Physics",
-         student == "Alice",
-         grade > 83)
+  filter(final_grade != 83,
+         exam_grade < 90) # Greater than is `>`, lesser than is `<`.
 ```
 
 ### Practice time with `filter()`!
 
-Challenge: keep only the subset of rows in our dataframe where the code module was `AAA` and the student was over age 55.
+Challenge: keep only the subset of rows in our dataframe where the code module was `AAA` and the student had more than 0 previous attempts.
 
 ```{r}
 df %>% 
@@ -180,7 +222,7 @@ df %>%
   )
 ```
 
-To get at the missing values in our two columns of interest, you may be tempted to write conditions like `imd_band == NA` or `completed_course == NA`. However, in R, the best practice for checking whether a value is missing is to use the function `is.na()`. To return the negation of `is.na()` (or any negation, for that matter), you can use `!`. This turns `TRUE` into `FALSE` and `FALSE into `TRUE`.
+To get at the missing values in our two columns of interest, you may be tempted to write conditions like `imd_band == NA` or `completed_course == NA`. However, in R, the best practice for checking whether a value is missing is to use the function `is.na()`.
 
 In the code snippet below, I keep only the subset of rows where neither `imd_band` or `completed_course` is missing. 
 
@@ -201,25 +243,28 @@ Now we need to count how many people completed their courses across different va
 
 To do this, we can use two functions: `group_by()` and `summarise()`.
 
-`group_by()` specifies which variable(s) you want to use to compute summaries within, and `summarise()` squishes the dataframe down to just one row per group, and creates a column with whatever summary value you specify. Here's an example:
+`group_by()` specifies which variable(s) you want to use to compute summaries within, and `summarise()` squishes the dataframe down to just one row per group, creating a column with whatever summary value you specify. Here's an example:
 
 ```{r}
-# We can group by course and compute the mean grade.
+# Let's just remind ourselves of what our original example dataframe looks:
+example_dataframe
+
+# We can group by course and compute the mean final_grade.
 example_dataframe %>% 
   group_by(course) %>% 
-  summarise(mean_grade = mean(grade))
+  summarise(mean_grade = mean(final_grade))
 
 # Or we can group by students and compute the mean grade.
 example_dataframe %>% 
   group_by(student) %>% 
-  summarise(mean_grade = mean(grade))
+  summarise(mean_grade = mean(final_grade))
 
 # Of course, we're not limited to means. We can create other summary values too.
 example_dataframe %>% 
   group_by(student) %>% 
-  summarise(mean_grade = mean(grade),
-            min_grade = min(grade),
-            max_grade = max(grade))
+  summarise(mean_grade = mean(final_grade),
+            min_grade = min(final_grade),
+            max_grade = max(final_grade))
 ```
 
 ### Practice time with `group_by()` + `summarise()`!
@@ -253,16 +298,17 @@ The `ggplot2` package is the best way to create visualizations in R. The code fo
 1. Mapping of variables onto aesthetics (the visual properties of the graph)
 2. Selection of a "geom" ("geometric object"), like a bar, a point, or a line, which will appear in the visualization as a representation of each observation.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 example_dataframe %>% # First we pipe in the dataframe of interest.
   ggplot(
     mapping = aes( # Next we map our variables of interest onto aesthetics.
       x = course,
-      y = grade
+      y = final_grade
     )
   ) + 
   geom_point() # Finally, we specify a geometric object to represent each observation.
 
+# Let's look at a histogram of the final assessment score.
 df %>%
   ggplot(
     mapping = aes(
@@ -270,37 +316,66 @@ df %>%
     )
   ) + 
   geom_histogram()
+
+# Let's see when people tend to register.
+df %>% 
+  ggplot(aes(x = date_registration)) +
+  geom_density()
 ```
+
+### Practice time with `ggplot()`!
+
+Challenge: use `ggplot()` and `geom_point()` to create a scatterplot with `days_active` on the x axis and `final_assessment_score` on the y axis.
+
+> Tip: There are a LOT of students in this dataset. To make denser areas of your scatterplot stand out more, insert `alpha = 0.1` into `geom_point()`. The argument `alpha` controls the transparency of your geom; a value close to 0 will be more transparent, while a value close to 1 will be more opaque. (You'll get an error if you try to enter a value outside the range of 0 and 1.)
+
+```{r, warning=FALSE}
+#YOUR_ANSWER_HERE!
+```
+
+Awesome!
+
+Now, to finish off our analysis. We set out to learn whether people from locations with a higher standard of living were more likely to complete their courses. We created a new column to determine whether they'd completed the course, based on `final_result`. We filtered out rows with missing values. We grouped by `imd_band` and computed the proportion of students in each `imd_band` who completed the course. All that's left is to make our plot!
+
+Let's make a barchart, with `imd_band` on the x axis and `proportion_completed` on the y axis.
+
+We just need one last thing, which is to override the default value for `stat`, an argument used by `geom_bar`. By default, `geom_bar` assumes we're passing in just a categorical variable on the x axis, and that we want it to count all the rows that fall into each value of that variable. But we've already computed our summary statistic above, when we used `group_by` and `summarise`. So we'll pass in our own `y` value, and tell `geom_bar` to use `stat = "identity"`, which just means to create a bar that is located at `x` on the horizontal axis and that extends up to `y` from 0 on the vertical axis.
 
 ```{r}
 df_summarised %>% 
   ggplot(mapping = aes(x = imd_band, y = proportion_completed)) +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity") 
 ```
+
+Ta-da! It looks like there's a pretty consistent trend: people from locations with a higher `imd_band` are more likely to complete their courses.
+
+Of course, this trend may not be statistically significant... but that's not a matter of data wrangling, so I'm off the hook.
+
+(P.S. It is statistically significant. Scroll down to the bottom of this document to see the code.)
 
 ## Putting it all together
 
+That may have seemed like a LOT to go through just to make one plot. But really, it's not so bad! If we pipe together every step of our analysis, we can go from our initial dataframe to our plot in only 13 lines of code! Check it out:
+
 ```{r}
 df %>% 
-  mutate(completed_course = case_when(
+  select(id_student, imd_band, final_result) %>% # Select the columns we want.
+  mutate(completed_course = case_when( # Add our new column.
            final_result == "Pass" ~ TRUE,
            final_result == "Distinction" ~ TRUE,
            final_result == "Fail" ~ FALSE,
            final_result == "Withdrawn" ~ FALSE
          )) %>% 
-  filter(!is.na(imd_band),
-         !is.na(completed_course)) %>% 
-  group_by(imd_band) %>%
-  summarise(proportion_completed = mean(completed_course)) %>% 
-  ggplot(mapping = aes(x = imd_band, y = proportion_completed)) +
-  geom_bar(stat = "identity")
+  filter(!is.na(imd_band), !is.na(completed_course)) %>% # Remove rows with missing values.
+  group_by(imd_band) %>% # Group by imd_band.
+  summarise(proportion_completed = mean(completed_course)) %>% # Compute the proportion of students who completed the course.
+  ggplot(mapping = aes(x = imd_band, y = proportion_completed)) + # Add our aesthetics.
+  geom_bar(stat = "identity") # Choose our geom!
 ```
 
 ## Bonus visualizations, to get you started!
 
-```{r, warning=FALSE, fig.height=8, fig.width=9}
-library(reshape2)
-
+```{r, message=FALSE, warning=FALSE, fig.height=8, fig.width=9}
 variables <- colnames(df)
 classes <- sapply(df, class)
 numeric_variables <- variables[classes == "numeric" | classes == "integer"]
@@ -324,4 +399,15 @@ df %>%
   facet_wrap(~variable, scales = "free") +
   coord_flip() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+## Is our trend statistically significant?
+
+```{r}
+# I convert imd_band to numeric, such that 0-10 = 1, 10-20 = 2, 20-30 = 3, etc.
+summary(lm(completed_course~as.numeric(factor(imd_band)), data = df_mutated))
+```
+
+```{r}
+sessionInfo()
 ```
