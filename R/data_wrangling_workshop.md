@@ -52,12 +52,12 @@ df
 
 Let's answer a question!
 
-Is a registrant's likelihood of completing a course related to the socioeconomic status of the place where they live?
+Is a registrant's likelihood of completing a course related to the standard of living in the place where they live?
 
 There are two columns in our dataset that can help us answer this question:
 
--   `imd_band`: the Index of Multiple Depravation band of the place where the student lived during the module-presentation.
--   `final_result`: student’s final result in the module-presentation.
+-   `imd_band`: the Index of Multiple Depravation band of the place where the student lived during the module-presentation. A higher band means the place had a higher standard of living.
+-   `final_result`: student’s final result in the module-presentation (i.e. the course).
 
 Let's grab them!
 
