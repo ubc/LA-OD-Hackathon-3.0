@@ -61,8 +61,8 @@ There are two columns in our dataset that can help us answer this question:
 
 Let's grab them!
 
-Selecting columns with `select()`
----------------------------------
+Subsetting columns with `select()`
+----------------------------------
 
 ![select](img/select.png)
 
