@@ -7,15 +7,47 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## How to get set up for this workshop
+
+### Getting this document on your computer:
+
+1. Go to the GitHub repository here: [https://github.com/ubc/LA-OD-Hackathon-3.0](https://github.com/ubc/LA-OD-Hackathon-3.0)
+2. Click the green button on the right that says "Clone or download".
+3. Click "Download ZIP". (If you're proficient with git, feel free to clone the repository.)
+4. Create a folder on your computer to store your Hackathon work, and store your ZIP file there.
+5. Double-click your ZIP file to unzip it and get all the Hackathon code.
+
+### Getting the data:
+
+1. Go to the Google Drive folder here: [https://drive.google.com/drive/folders/1g_ejTWCXFdGL5fmel4TNX57mDAX73l1P](https://drive.google.com/drive/folders/1g_ejTWCXFdGL5fmel4TNX57mDAX73l1P).
+2. Right-click `all_enrolments.csv`, then click "Download".
+3. Move "all_enrolments.csv" into your hackathon folder, and store it under `YOUR_FOLDER/LA-OD-Hackathon-3.0-master/R/`.
+
+### Getting R and Rstudio
+
+1. Download and install R from here: [http://cran.stat.sfu.ca/](http://cran.stat.sfu.ca/).
+2. Download and install RStudio Desktop (Open Source Edition) from here: [https://www.rstudio.com/products/rstudio/#Desktop](https://www.rstudio.com/products/rstudio/#Desktop).
+
+### Getting ready to play!
+
+1. In RStudio, open `data_wrangling_workshop.Rmd`, a file in `YOUR_FOLDER/LA-OD-Hackathon-3.0-master/R/`. (That's this file!)
+2. In the code snippet below, remove the hashtags from both lines, and click the green "play" button on the right to install two R packages you'll need for the workshop.
+
 ```{r}
 #install.packages("tidyverse")
 #install.packages("reshape2")
 ```
 
+## Ready to rock!!!
+
+First we'll load our packages:
+
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(reshape2)
 ```
+
+Then we'll load our data (don't worry if the code below is gibberish to you):
 
 ```{r, message=FALSE}
 df <- read_csv("all_enrolments.csv") %>% 
