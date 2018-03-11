@@ -1,15 +1,49 @@
 Data Wrangling in R - Learning Analytics Hackathon Workshop
 ================
 
+How to get set up for this workshop
+-----------------------------------
+
+### Getting this document on your computer:
+
+1.  Go to the GitHub repository here: <https://github.com/ubc/LA-OD-Hackathon-3.0>
+2.  Click the green button on the right that says "Clone or download".
+3.  Click "Download ZIP". (If you're proficient with git, feel free to clone the repository.)
+4.  Create a folder on your computer to store your Hackathon work, and store your ZIP file there.
+5.  Double-click your ZIP file to unzip it and get all the Hackathon code.
+
+### Getting the data:
+
+1.  Go to the Google Drive folder here: <https://drive.google.com/drive/folders/1g_ejTWCXFdGL5fmel4TNX57mDAX73l1P>.
+2.  Right-click `all_enrolments.csv`, then click "Download".
+3.  Move "all\_enrolments.csv" into your hackathon folder, and store it under `YOUR_FOLDER/LA-OD-Hackathon-3.0-master/R/`.
+
+### Getting R and Rstudio
+
+1.  Download and install R from here: <http://cran.stat.sfu.ca/>.
+2.  Download and install RStudio Desktop (Open Source Edition) from here: <https://www.rstudio.com/products/rstudio/#Desktop>.
+
+### Getting ready to play!
+
+1.  In RStudio, open `data_wrangling_workshop.Rmd`, a file in `YOUR_FOLDER/LA-OD-Hackathon-3.0-master/R/`. (That's this file!)
+2.  In the code snippet below, remove the hashtags from both lines, and click the green "play" button on the right to install two R packages you'll need for the workshop.
+
 ``` r
 #install.packages("tidyverse")
 #install.packages("reshape2")
 ```
 
+Ready to rock!!!
+----------------
+
+First we'll load our packages:
+
 ``` r
 library(tidyverse)
 library(reshape2)
 ```
+
+Then we'll load our data (don't worry if the code below is gibberish to you):
 
 ``` r
 df <- read_csv("all_enrolments.csv") %>% 
@@ -22,6 +56,8 @@ df <- read_csv("all_enrolments.csv") %>%
                                                "Post Graduate Qualification")),
          final_exam_score = as.numeric(final_exam_score))
 ```
+
+    ## Warning: package 'bindrcpp' was built under R version 3.3.2
 
 A first look at our data.
 
@@ -700,13 +736,9 @@ summary(lm(completed_course~as.numeric(factor(imd_band)), data = df_mutated))
 sessionInfo()
 ```
 
-    ## R version 3.4.1 (2017-06-30)
-    ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-    ## Running under: macOS High Sierra 10.13.3
-    ## 
-    ## Matrix products: default
-    ## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
-    ## LAPACK: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib
+    ## R version 3.3.1 (2016-06-21)
+    ## Platform: x86_64-apple-darwin13.4.0 (64-bit)
+    ## Running under: OS X 10.13.3 (unknown)
     ## 
     ## locale:
     ## [1] en_CA.UTF-8/en_CA.UTF-8/en_CA.UTF-8/C/en_CA.UTF-8/en_CA.UTF-8
@@ -716,23 +748,17 @@ sessionInfo()
     ## 
     ## other attached packages:
     ## [1] bindrcpp_0.2       reshape2_1.4.3     dplyr_0.7.4       
-    ## [4] purrr_0.2.3        readr_1.1.1        tidyr_0.7.1       
-    ## [7] tibble_1.3.4       ggplot2_2.2.1.9000 tidyverse_1.1.1   
+    ## [4] purrr_0.2.4        readr_1.1.1        tidyr_0.7.2       
+    ## [7] tibble_1.3.4       ggplot2_2.2.1.9000 tidyverse_1.0.0   
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] Rcpp_0.12.13      cellranger_1.1.0  compiler_3.4.1   
-    ##  [4] plyr_1.8.4        bindr_0.1         forcats_0.2.0    
-    ##  [7] tools_3.4.1       digest_0.6.12     lubridate_1.6.0  
-    ## [10] jsonlite_1.5      evaluate_0.10.1   nlme_3.1-131     
-    ## [13] gtable_0.2.0      lattice_0.20-35   pkgconfig_2.0.1  
-    ## [16] rlang_0.1.4       psych_1.7.5       yaml_2.1.16      
-    ## [19] parallel_3.4.1    haven_1.1.0       xml2_1.1.1       
-    ## [22] httr_1.2.1        stringr_1.2.0     knitr_1.16       
-    ## [25] hms_0.3           rprojroot_1.2     grid_3.4.1       
-    ## [28] glue_1.1.1        R6_2.2.2          readxl_1.0.0     
-    ## [31] foreign_0.8-69    rmarkdown_1.6     modelr_0.1.1     
-    ## [34] magrittr_1.5      backports_1.1.0   scales_0.5.0.9000
-    ## [37] htmltools_0.3.6   rvest_0.3.2       assertthat_0.2.0 
-    ## [40] mnormt_1.5-5      colorspace_1.3-2  labeling_0.3     
-    ## [43] stringi_1.1.5     lazyeval_0.2.0    munsell_0.4.3    
-    ## [46] broom_0.4.2
+    ##  [1] Rcpp_0.12.15         bindr_0.1            knitr_1.18          
+    ##  [4] magrittr_1.5         hms_0.3              munsell_0.4.3       
+    ##  [7] colorspace_1.3-1     R6_2.2.2             rlang_0.1.6         
+    ## [10] stringr_1.2.0        plyr_1.8.4           tools_3.3.1         
+    ## [13] grid_3.3.1           gtable_0.2.0         htmltools_0.3.6     
+    ## [16] assertthat_0.2.0     yaml_2.1.16          lazyeval_0.2.1      
+    ## [19] rprojroot_1.3-2      digest_0.6.13        glue_1.2.0          
+    ## [22] evaluate_0.10.1      rmarkdown_1.6.0.9000 labeling_0.3        
+    ## [25] stringi_1.1.6        scales_0.5.0.9000    backports_1.1.2     
+    ## [28] pkgconfig_2.0.1
