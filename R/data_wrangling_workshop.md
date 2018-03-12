@@ -33,6 +33,12 @@ How to get set up for this workshop
 #install.packages("reshape2")
 ```
 
+If you're stuck installing the tidyverse, just install `dplyr`, with the line below:
+
+``` r
+#install.packages("dplyr")
+```
+
 Ready to rock!!!
 ----------------
 
@@ -56,8 +62,6 @@ df <- read_csv("all_enrolments.csv") %>%
                                                "Post Graduate Qualification")),
          final_exam_score = as.numeric(final_exam_score))
 ```
-
-    ## Warning: package 'bindrcpp' was built under R version 3.3.2
 
 A first look at our data.
 
@@ -85,6 +89,27 @@ df
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
     ## #   final_assessment_score <dbl>, final_exam_score <dbl>
+
+``` r
+variable1 <- 1
+1 + variable1
+```
+
+    ## [1] 2
+
+``` r
+?sum
+?filter
+```
+
+    ## Help on topic 'filter' was found in the following packages:
+    ## 
+    ##   Package               Library
+    ##   dplyr                 /Library/Frameworks/R.framework/Versions/3.4/Resources/library
+    ##   stats                 /Library/Frameworks/R.framework/Versions/3.4/Resources/library
+    ## 
+    ## 
+    ## Using the first match ...
 
 Let's answer a question!
 
@@ -126,6 +151,18 @@ example_dataframe
 
 ``` r
 # Now let's select just the `course` column.
+select(.data = example_dataframe, course)
+```
+
+    ##    course
+    ## 1 Physics
+    ## 2 Physics
+    ## 3 English
+    ## 4 English
+    ## 5    Math
+    ## 6    Math
+
+``` r
 example_dataframe %>% 
   select(course)
 ```
@@ -158,12 +195,32 @@ Challenge: using our full dataframe, select just the `id_student` column.
 
 ``` r
 df %>% 
-  select(
-    #YOUR_ANSWER_HERE!
-  )
+  select(id_student)
 ```
 
-    ## # A tibble: 32,593 x 0
+    ## # A tibble: 32,593 x 1
+    ##    id_student
+    ##         <chr>
+    ##  1      11391
+    ##  2      28400
+    ##  3      30268
+    ##  4      31604
+    ##  5      32885
+    ##  6      38053
+    ##  7      45462
+    ##  8      45642
+    ##  9      52130
+    ## 10      53025
+    ## # ... with 32,583 more rows
+
+``` r
+variable1 <- data.frame(thiscolumn = c(1,2,3), thisothercolumn = c(2,4,5))
+vriable2 <- c(3,4,5)
+
+class(vriable2)
+```
+
+    ## [1] "numeric"
 
 Awesome. Now let's grab our two variables of interest, plus the `id_student` column, and save it in a new dataframe. (This step isn't strictly necessary, but it will make it easier for us to keep an eye on the columns we care about.)
 
@@ -213,6 +270,18 @@ To do this, we need to write code that does two things:
 This is one of the most common tasks in data wrangling. In R, the easiest way to do it is to use the `mutate()` function.
 
 ``` r
+example_dataframe
+```
+
+    ##    course student final_grade exam_grade
+    ## 1 Physics   Alice          85         87
+    ## 2 Physics     Bob          74         71
+    ## 3 English   Alice          81         80
+    ## 4 English     Bob          89         90
+    ## 5    Math   Alice          93         95
+    ## 6    Math     Bob          87         83
+
+``` r
 # We can fill our new column with whatever we like!
 example_dataframe %>% 
   mutate(new_column = "hello!")
@@ -244,7 +313,7 @@ We can even use the other columns to determine the contents of the new one! Let'
 ``` r
 # (This is where the magic happens!)
 example_dataframe %>% 
-  mutate(non_exam_grade = (final_grade - 0.5*exam_grade) / 0.5)
+  mutate(non_exam_grade = (final_grade - 0.5*exam_grade) / 0.5) 
 ```
 
     ##    course student final_grade exam_grade non_exam_grade
@@ -262,30 +331,25 @@ Challenge: using `mutate()` and the `total_activity` and `days_active` columns, 
 ``` r
 df %>% 
   mutate(
-    #YOUR_ANSWER_HERE!
-  )
+    average_events_per_active_day = total_activity/days_active
+  ) %>% 
+  select(id_student, total_activity, days_active, average_events_per_active_day)
 ```
 
-    ## # A tibble: 32,593 x 20
-    ##    code_module code_presentation id_student date_registration
-    ##          <chr>             <chr>      <chr>             <dbl>
-    ##  1         AAA             2013J      11391              -159
-    ##  2         AAA             2013J      28400               -53
-    ##  3         AAA             2013J      30268               -92
-    ##  4         AAA             2013J      31604               -52
-    ##  5         AAA             2013J      32885              -176
-    ##  6         AAA             2013J      38053              -110
-    ##  7         AAA             2013J      45462               -67
-    ##  8         AAA             2013J      45642               -29
-    ##  9         AAA             2013J      52130               -33
-    ## 10         AAA             2013J      53025              -179
-    ## # ... with 32,583 more rows, and 16 more variables:
-    ## #   date_unregistration <dbl>, gender <chr>, region <chr>,
-    ## #   highest_education <fctr>, imd_band <chr>, age_band <chr>,
-    ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
-    ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
-    ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
-    ## #   final_assessment_score <dbl>, final_exam_score <dbl>
+    ## # A tibble: 32,593 x 4
+    ##    id_student total_activity days_active average_events_per_active_day
+    ##         <chr>          <dbl>       <dbl>                         <dbl>
+    ##  1      11391            934          40                      23.35000
+    ##  2      28400           1435          80                      17.93750
+    ##  3      30268            281          12                      23.41667
+    ##  4      31604           2158         123                      17.54472
+    ##  5      32885           1034          70                      14.77143
+    ##  6      38053           2445         143                      17.09790
+    ##  7      45462           1492          90                      16.57778
+    ##  8      45642           1428         105                      13.60000
+    ##  9      52130           1894         122                      15.52459
+    ## 10      53025           3158         142                      22.23944
+    ## # ... with 32,583 more rows
 
 Now. What we actually need to do to answer our question is create a column that tells us whether the student passed their course. A good way to handle this is to use the `case_when()` function.
 
@@ -294,6 +358,12 @@ Now. What we actually need to do to answer our question is create a column that 
 ``` r
 cool_values <- c(TRUE, FALSE, FALSE)
 
+cool_values
+```
+
+    ## [1]  TRUE FALSE FALSE
+
+``` r
 case_when(
   cool_values == TRUE ~ "hey there!",
   cool_values == FALSE ~ "what's up?"
@@ -305,14 +375,22 @@ case_when(
 ``` r
 cool_numbers <- c(1,2,3,4,5,6,7,8,9,10)
 
+cool_numbers
+```
+
+    ##  [1]  1  2  3  4  5  6  7  8  9 10
+
+``` r
 case_when(
-  cool_numbers <= 5 ~ "small",
-  cool_numbers > 5 ~ "BIG!!!!"
+  cool_numbers < 5 ~ "small",
+  cool_numbers > 5 ~ "BIG!!!!",
+  TRUE ~ "default_value"
 )
 ```
 
-    ##  [1] "small"   "small"   "small"   "small"   "small"   "BIG!!!!" "BIG!!!!"
-    ##  [8] "BIG!!!!" "BIG!!!!" "BIG!!!!"
+    ##  [1] "small"         "small"         "small"         "small"        
+    ##  [5] "default_value" "BIG!!!!"       "BIG!!!!"       "BIG!!!!"      
+    ##  [9] "BIG!!!!"       "BIG!!!!"
 
 All we need to do now is use `case_when()` within `mutate()` to create a new column that tells us whether the student in each row completed their course:
 
@@ -357,6 +435,18 @@ Subsetting rows with `filter()`
 Technically, there are fancy statistical things you can do to deal with missing values. But today, we're just going to remove the rows where they occur in either of our two columns of interest.
 
 The easiest way to do this in R is to use the `filter()` function, which keeps only the rows in a dataframe that match a condition you pass in. For example:
+
+``` r
+example_dataframe
+```
+
+    ##    course student final_grade exam_grade
+    ## 1 Physics   Alice          85         87
+    ## 2 Physics     Bob          74         71
+    ## 3 English   Alice          81         80
+    ## 4 English     Bob          89         90
+    ## 5    Math   Alice          93         95
+    ## 6    Math     Bob          87         83
 
 ``` r
 # Use `==` for "equals"
@@ -409,10 +499,7 @@ example_dataframe %>%
 Challenge: keep only the subset of rows in our dataframe where the code module was `AAA` and the student had more than 0 previous attempts.
 
 ``` r
-df %>% 
-  filter(
-    #YOUR_ANSWER_HERE!
-  )
+df
 ```
 
     ## # A tibble: 32,593 x 20
@@ -435,6 +522,34 @@ df %>%
     ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
     ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
     ## #   final_assessment_score <dbl>, final_exam_score <dbl>
+
+``` r
+df %>% 
+  filter(
+    num_of_prev_attempts > 0 & code_module == "AAA"
+  )
+```
+
+    ## # A tibble: 41 x 20
+    ##    code_module code_presentation id_student date_registration
+    ##          <chr>             <chr>      <chr>             <dbl>
+    ##  1         AAA             2014J      65002              -144
+    ##  2         AAA             2014J      94961              -150
+    ##  3         AAA             2014J     121349               -28
+    ##  4         AAA             2014J     129955              -143
+    ##  5         AAA             2014J     135335               -82
+    ##  6         AAA             2014J     135400               -51
+    ##  7         AAA             2014J     141377              -127
+    ##  8         AAA             2014J     147756               -41
+    ##  9         AAA             2014J     148993              -154
+    ## 10         AAA             2014J     155984              -156
+    ## # ... with 31 more rows, and 16 more variables: date_unregistration <dbl>,
+    ## #   gender <chr>, region <chr>, highest_education <fctr>, imd_band <chr>,
+    ## #   age_band <chr>, num_of_prev_attempts <int>, studied_credits <int>,
+    ## #   disability <chr>, final_result <chr>, total_activity <dbl>,
+    ## #   days_active <dbl>, last_active_date <dbl>,
+    ## #   distinct_content_items_accessed <dbl>, final_assessment_score <dbl>,
+    ## #   final_exam_score <dbl>
 
 To get at the missing values in our two columns of interest, you may be tempted to write conditions like `imd_band == NA` or `completed_course == NA`. However, in R, the best practice for checking whether a value is missing is to use the function `is.na()`.
 
@@ -530,21 +645,59 @@ example_dataframe %>%
     ## 1   Alice   86.33333        81        93
     ## 2     Bob   83.33333        74        89
 
+``` r
+example_dataframe %>% 
+  summarize(mean_grade = mean(final_grade))
+```
+
+    ##   mean_grade
+    ## 1   84.83333
+
 ### Practice time with `group_by()` + `summarise()`!
 
 Using our full open dataset, compute the mean number of days (`days_active`) students were active in each course (`code_module`).
 
 ``` r
-df %>% 
-  group_by(
-    #YOUR_ANSWER_HERE!
-  ) %>% 
-  summarise(
-    #YOUR_ANSWER_HERE!
-  )
+df
 ```
 
-    ## data frame with 0 columns and 0 rows
+    ## # A tibble: 32,593 x 20
+    ##    code_module code_presentation id_student date_registration
+    ##          <chr>             <chr>      <chr>             <dbl>
+    ##  1         AAA             2013J      11391              -159
+    ##  2         AAA             2013J      28400               -53
+    ##  3         AAA             2013J      30268               -92
+    ##  4         AAA             2013J      31604               -52
+    ##  5         AAA             2013J      32885              -176
+    ##  6         AAA             2013J      38053              -110
+    ##  7         AAA             2013J      45462               -67
+    ##  8         AAA             2013J      45642               -29
+    ##  9         AAA             2013J      52130               -33
+    ## 10         AAA             2013J      53025              -179
+    ## # ... with 32,583 more rows, and 16 more variables:
+    ## #   date_unregistration <dbl>, gender <chr>, region <chr>,
+    ## #   highest_education <fctr>, imd_band <chr>, age_band <chr>,
+    ## #   num_of_prev_attempts <int>, studied_credits <int>, disability <chr>,
+    ## #   final_result <chr>, total_activity <dbl>, days_active <dbl>,
+    ## #   last_active_date <dbl>, distinct_content_items_accessed <dbl>,
+    ## #   final_assessment_score <dbl>, final_exam_score <dbl>
+
+``` r
+df %>% 
+  group_by(code_module) %>% 
+  summarise(mean_days_active = mean(days_active, na.rm = TRUE))
+```
+
+    ## # A tibble: 7 x 2
+    ##   code_module mean_days_active
+    ##         <chr>            <dbl>
+    ## 1         AAA         88.12925
+    ## 2         BBB         47.02597
+    ## 3         CCC         54.81697
+    ## 4         DDD         68.31366
+    ## 5         EEE         68.05587
+    ## 6         FFF         78.14030
+    ## 7         GGG         35.60397
 
 To compute the proportion of students in each `imd_band` who completed their courses, we can use a neat trick. Remember: we created a column in which rows were labelled `TRUE` if the student completed the course, and `FALSE` if they didn't. In R, just like in most programming languages, `TRUE` is equivalent to `1`, and `FALSE` is equivalent to `0`. So we can group by `imd_band`, and summarise the mean of our new column, `completed_course`. If a particular `imd_band` group has ten students, and four of them have a value of `TRUE` for `completed_course`, the mean will be `0.4`. Our new column will tell us what proportion of students in that `imd_band` completed the course!
 
@@ -573,10 +726,26 @@ df_summarised
 Plotting with `ggplot()`
 ------------------------
 
+``` r
+#install.packages("ggplot2")
+```
+
 The `ggplot2` package is the best way to create visualizations in R. The code for each visualization comes in two main pieces:
 
 1.  Mapping of variables onto aesthetics (the visual properties of the graph)
 2.  Selection of a "geom" ("geometric object"), like a bar, a point, or a line, which will appear in the visualization as a representation of each observation.
+
+``` r
+example_dataframe
+```
+
+    ##    course student final_grade exam_grade
+    ## 1 Physics   Alice          85         87
+    ## 2 Physics     Bob          74         71
+    ## 3 English   Alice          81         80
+    ## 4 English     Bob          89         90
+    ## 5    Math   Alice          93         95
+    ## 6    Math     Bob          87         83
 
 ``` r
 example_dataframe %>% # First we pipe in the dataframe of interest.
@@ -589,29 +758,33 @@ example_dataframe %>% # First we pipe in the dataframe of interest.
   geom_point() # Finally, we specify a geometric object to represent each observation.
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-19-1.png)
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-21-1.png)
 
 ``` r
 # Let's look at a histogram of the final assessment score.
 df %>%
-  ggplot(
-    mapping = aes(
+  ggplot() + 
+  geom_histogram(mapping = aes(
       x = final_assessment_score
-    )
-  ) + 
-  geom_histogram()
+    ))
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-19-2.png)
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+    ## Warning: Removed 6777 rows containing non-finite values (stat_bin).
+
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-21-2.png)
 
 ``` r
 # Let's see when people tend to register.
 df %>% 
   ggplot(aes(x = date_registration)) +
-  geom_density()
+  geom_density(color = "red")
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-19-3.png)
+    ## Warning: Removed 45 rows containing non-finite values (stat_density).
+
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-21-3.png)
 
 ### Practice time with `ggplot()`!
 
@@ -620,7 +793,20 @@ Challenge: use `ggplot()` and `geom_point()` to create a scatterplot with `days_
 > Tip: There are a LOT of students in this dataset. To make denser areas of your scatterplot stand out more, insert `alpha = 0.1` into `geom_point()`. The argument `alpha` controls the transparency of your geom; a value close to 0 will be more transparent, while a value close to 1 will be more opaque. (You'll get an error if you try to enter a value outside the range of 0 and 1.)
 
 ``` r
-#YOUR_ANSWER_HERE!
+df %>%
+  ggplot(
+    aes(x=days_active,y=final_assessment_score)
+    ) +
+  geom_point(alpha = 0.1) +
+  geom_smooth()
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-22-1.png)
+
+``` r
+?geom_smooth
 ```
 
 Awesome!
@@ -637,7 +823,7 @@ df_summarised %>%
   geom_bar(stat = "identity") 
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-21-1.png)
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-23-1.png)
 
 Ta-da! It looks like there's a pretty consistent trend: people from locations with a higher `imd_band` are more likely to complete their courses.
 
@@ -652,7 +838,7 @@ That may have seemed like a LOT to go through just to make one plot. But really,
 
 ``` r
 df %>% 
-  select(id_student, imd_band, final_result) %>% # Select the columns we want.
+#  select(id_student, imd_band, final_result) %>% # Select the columns we want.
   mutate(completed_course = case_when( # Add our new column.
            final_result == "Pass" ~ TRUE,
            final_result == "Distinction" ~ TRUE,
@@ -666,7 +852,7 @@ df %>%
   geom_bar(stat = "identity") # Choose our geom!
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-22-1.png)
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-24-1.png)
 
 Bonus visualizations, to get you started!
 -----------------------------------------
@@ -689,7 +875,7 @@ df %>%
   facet_wrap(~variable, scales = "free", nrow = 4)
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-23-1.png)
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-25-1.png)
 
 ``` r
 df %>% 
@@ -701,7 +887,7 @@ df %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-23-2.png)
+![](data_wrangling_workshop_files/figure-markdown_github-ascii_identifiers/unnamed-chunk-25-2.png)
 
 Is our trend statistically significant?
 ---------------------------------------
@@ -736,9 +922,13 @@ summary(lm(completed_course~as.numeric(factor(imd_band)), data = df_mutated))
 sessionInfo()
 ```
 
-    ## R version 3.3.1 (2016-06-21)
-    ## Platform: x86_64-apple-darwin13.4.0 (64-bit)
-    ## Running under: OS X 10.13.3 (unknown)
+    ## R version 3.4.1 (2017-06-30)
+    ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+    ## Running under: macOS High Sierra 10.13.3
+    ## 
+    ## Matrix products: default
+    ## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
+    ## LAPACK: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib
     ## 
     ## locale:
     ## [1] en_CA.UTF-8/en_CA.UTF-8/en_CA.UTF-8/C/en_CA.UTF-8/en_CA.UTF-8
@@ -748,17 +938,23 @@ sessionInfo()
     ## 
     ## other attached packages:
     ## [1] bindrcpp_0.2       reshape2_1.4.3     dplyr_0.7.4       
-    ## [4] purrr_0.2.4        readr_1.1.1        tidyr_0.7.2       
-    ## [7] tibble_1.3.4       ggplot2_2.2.1.9000 tidyverse_1.0.0   
+    ## [4] purrr_0.2.3        readr_1.1.1        tidyr_0.7.1       
+    ## [7] tibble_1.3.4       ggplot2_2.2.1.9000 tidyverse_1.1.1   
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] Rcpp_0.12.15         bindr_0.1            knitr_1.18          
-    ##  [4] magrittr_1.5         hms_0.3              munsell_0.4.3       
-    ##  [7] colorspace_1.3-1     R6_2.2.2             rlang_0.1.6         
-    ## [10] stringr_1.2.0        plyr_1.8.4           tools_3.3.1         
-    ## [13] grid_3.3.1           gtable_0.2.0         htmltools_0.3.6     
-    ## [16] assertthat_0.2.0     yaml_2.1.16          lazyeval_0.2.1      
-    ## [19] rprojroot_1.3-2      digest_0.6.13        glue_1.2.0          
-    ## [22] evaluate_0.10.1      rmarkdown_1.6.0.9000 labeling_0.3        
-    ## [25] stringi_1.1.6        scales_0.5.0.9000    backports_1.1.2     
-    ## [28] pkgconfig_2.0.1
+    ##  [1] Rcpp_0.12.13      cellranger_1.1.0  compiler_3.4.1   
+    ##  [4] plyr_1.8.4        bindr_0.1         forcats_0.2.0    
+    ##  [7] tools_3.4.1       digest_0.6.12     lubridate_1.6.0  
+    ## [10] jsonlite_1.5      evaluate_0.10.1   nlme_3.1-131     
+    ## [13] gtable_0.2.0      lattice_0.20-35   mgcv_1.8-17      
+    ## [16] pkgconfig_2.0.1   rlang_0.1.4       Matrix_1.2-10    
+    ## [19] psych_1.7.5       yaml_2.1.16       parallel_3.4.1   
+    ## [22] haven_1.1.0       xml2_1.1.1        httr_1.2.1       
+    ## [25] stringr_1.2.0     knitr_1.16        hms_0.3          
+    ## [28] rprojroot_1.2     grid_3.4.1        glue_1.1.1       
+    ## [31] R6_2.2.2          readxl_1.0.0      foreign_0.8-69   
+    ## [34] rmarkdown_1.6     modelr_0.1.1      magrittr_1.5     
+    ## [37] backports_1.1.0   scales_0.5.0.9000 htmltools_0.3.6  
+    ## [40] rvest_0.3.2       assertthat_0.2.0  mnormt_1.5-5     
+    ## [43] colorspace_1.3-2  labeling_0.3      stringi_1.1.5    
+    ## [46] lazyeval_0.2.0    munsell_0.4.3     broom_0.4.2
